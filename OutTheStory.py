@@ -182,7 +182,12 @@ if st.session_state.step == 'imposter_guess':
     st.write(f"{st.session_state.imposter}, الآن دورك لتخمين الكلمة!")
 
     if not st.session_state.word_choices:
-        st.session_state.word_choices = random.sample(categories[st.session_state.category], 4)
+        # Select 7 random words from the category excluding the correct word
+        wrong_words = random.sample([word for word in categories[st.session_state.category] if word != st.session_state.word_for_in_players], 7)
+        # Add the correct word to the list of choices
+        st.session_state.word_choices = wrong_words + [st.session_state.word_for_in_players]
+        # Shuffle the word choices to randomize the position of the correct word
+        random.shuffle(st.session_state.word_choices)
 
     imposter_guess = st.selectbox(f"{st.session_state.imposter}, ما هي الكلمة التي يعتقد الآخرون أنها في القصة؟", st.session_state.word_choices)
 
@@ -192,8 +197,13 @@ if st.session_state.step == 'imposter_guess':
             if st.session_state.double_points_this_round:
                 points *= 2  # Double the points if the event triggers
             st.session_state.scores[st.session_state.imposter] += points
-
+            st.success("تخمين صحيح! المحتال خمن الكلمة الصحيحة.")
+        else:
+            st.error("تخمين خاطئ! المحتال لم يتمكن من تخمين الكلمة الصحيحة.")
+        
         st.session_state.step = 'results'
+
+
 
 if st.session_state.step == 'results':
     st.write("النتائج النهائية!")
